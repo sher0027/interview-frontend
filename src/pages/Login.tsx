@@ -13,15 +13,42 @@ import {
 } from '@chakra-ui/react';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { login } from '../api/api';
+import LoadingCircle from '../components/LoadingCircle';
+import MessageAlert from '../components/MessageAlert';
 
 const Login = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const navigateToProfile = () => {
-        if (username && password) {
-            navigate("/home");
+    const handleLogin = async () => {
+        if (!username || !password) {
+            setError("Please enter both username and password.");
+            return;
+        }
+
+        setLoading(true); 
+        setError("");     
+        try {
+            const response = await login(username, password);
+            if (response.status === 200) {
+                const token = response.data.token;
+                localStorage.setItem('authToken', token); 
+                navigate("/home"); 
+            } else {
+                setError("Login failed. Please check your credentials.");
+            }
+        } catch (err) {
+            if (err instanceof Error) {
+                setError(err.message || "An error occurred. Please try again.");
+            } else {
+                setError("An unknown error occurred. Please try again.");
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -32,6 +59,8 @@ const Login = () => {
             alignItems="center"
             justifyContent="center"
         >
+            {loading && <LoadingCircle />} 
+            
             <Box
                 position="absolute"
                 top="-176px"     
@@ -52,7 +81,9 @@ const Login = () => {
                 boxShadow="2px 0px 10px rgba(0, 0, 0, 0.5)"
             >
                 <Heading fontSize="64px" mb="68px">AIIntervi</Heading>
-        
+
+                {error && <MessageAlert status={'error'} message={error} />}
+
                 <FormControl mb={5}>
                     <FormLabel htmlFor="username">Username</FormLabel>
                     <Input 
@@ -66,13 +97,21 @@ const Login = () => {
                     <FormLabel htmlFor="password">Password</FormLabel>
                     <Input 
                         id="password" 
+                        type="password"
                         placeholder="*****************"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 </FormControl>
             
-                <Button mb={5} width="100%" onClick={navigateToProfile}>Sign In</Button>
+                <Button 
+                    mb={5} 
+                    width="100%" 
+                    onClick={handleLogin} 
+                    isDisabled={loading}
+                >
+                    Sign In
+                </Button>
             
                 <Box position='relative'>
                     <Divider color="#d3d3d3" />
@@ -91,7 +130,7 @@ const Login = () => {
                 objectFit="contain"
             />
         </Flex>
-    )
+    );
 };
 
 export default Login;

@@ -4,7 +4,7 @@ import { Box } from "@chakra-ui/react";
 import Dialog from "../components/Dialog";
 import AudioCard from "../components/AudioCard";
 import { useState } from "react";
-// import { sendChatMessage } from "../api/openaiService";
+import { sendChatMessage } from "../api/api";
 
 interface Message {
     sender: 'robot' | 'user';
@@ -22,15 +22,12 @@ const Interview = () => {
     };
     
     const getRobotResponse = async (userMessage: string) => {
-        // try {
-        //     const robotResponse = await sendChatMessage([
-        //         { role: 'user', content: userMessage }
-        //     ]);
-
-        //     addMessage('robot', robotResponse);
-        // } catch (error) {
-        //     console.error('Error fetching robot response:', error);
-        // }
+        try {
+            const response = await sendChatMessage(userMessage); 
+            addMessage('robot', response.data.message); 
+        } catch (error) {
+            console.error('Error fetching robot response:', error);
+        }
     };
 
     return (

@@ -1,13 +1,13 @@
 import Navbar from "../components/Navbar";
 import Background from "../components/Background";
-import { Text } from "@chakra-ui/react";
+import EvaluationList from "../components/EvaluationList";
 
 const Evaluation = () => {
     return (
         <>
             <Navbar />
             <Background>
-                <Text>Evaluation</Text>
+                <EvaluationList></EvaluationList>
             </Background>
         </>
     )

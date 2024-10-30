@@ -1,28 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Button, Heading, Stack, Textarea, SimpleGrid, FormControl, FormLabel, Flex } from "@chakra-ui/react";
 import EditableField from './EditableField';  
 import UploadCard from "./UploadCard";
+import { getResume, updateResume, uploadResume } from "../api/api";
+import { formatField, parseField } from "../utils/format";
 
 const ResumeInfo = () => {
     const [resumeInfo, setResumeInfo] = useState({
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "123-456-7890",
-        address: "123 Main St, Cityville",
-        linkedIn: "linkedin.com/in/johndoe",
-        education: "B.Sc in Computer Science, XYZ University",
-        workExperience: "Software Engineer at ABC Corp for 2 years",
-        skills: "React, Node.js, Python, SQL",
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+        education: "",
+        workExperience: "",
+        skills: "",
     });
 
     const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const fields = [
         { label: "Name", name: "name" },
         { label: "Email", name: "email" },
         { label: "Phone", name: "phone" },
         { label: "Address", name: "address" },
-        // { label: "LinkedIn", name: "linkedIn" },
     ];
 
     const otherFields = [
@@ -30,6 +31,52 @@ const ResumeInfo = () => {
         { label: "Work Experience", name: "workExperience", isTextarea: true },
         { label: "Skills", name: "skills", isTextarea: true },
     ];
+
+    const fetchResume = async () => {
+        try {
+            setLoading(true);
+            const response = await getResume();
+            if (response.status === 200 && response.data) {
+                setResumeInfo({
+                    name: response.data.name || "",
+                    email: response.data.email || "",
+                    phone: response.data.phone || "",
+                    address: response.data.address || "",
+                    education: response.data.education ? formatField(response.data.education) : "",
+                    workExperience: response.data.workExperience ? formatField(response.data.workExperience) : "",
+                    skills: response.data.skills || "",
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching resume:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchResume(); 
+    }, []);
+
+    const handleFileUpload = async (file: File) => {
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await uploadResume(file);
+            if (response.status === 200 && response.data.resume_info) {
+                await fetchResume(); 
+            } else {
+                alert("Failed to parse PDF content.");
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            alert("Error uploading file.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -43,9 +90,24 @@ const ResumeInfo = () => {
         setIsEditing(!isEditing);
     };
 
-    const handleSubmit = () => {
-        setIsEditing(false);
-        console.log("Resume Info Updated:", resumeInfo);
+    const handleSubmit = async () => {
+        try {
+            setLoading(true);
+            const updatedResume = {
+                ...resumeInfo,
+                education: parseField(resumeInfo.education),
+                workExperience: parseField(resumeInfo.workExperience),
+            };
+            await updateResume(updateResume);
+            await fetchResume(); 
+            setIsEditing(false);
+            console.log("Resume Info Updated:", updatedResume);
+        } catch (error) {
+            console.error("Error updating resume:", error);
+            alert("Error updating resume information.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -103,7 +165,7 @@ const ResumeInfo = () => {
                         <Button width="100%" onClick={isEditing ? handleSubmit : handleEditToggle}>
                             {isEditing ? "Save" : "Edit"}
                         </Button>
-                        <UploadCard></UploadCard>
+                        <UploadCard onUpload={handleFileUpload} loading={loading} />
                     </Flex>
                 
                 </SimpleGrid>
@@ -112,5 +174,6 @@ const ResumeInfo = () => {
         </Box>
     );
 };
-
 export default ResumeInfo;
+
+

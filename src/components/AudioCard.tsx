@@ -5,7 +5,7 @@ interface AudioCardProps {
     onAudioSubmit: (audioUrl: string) => void;
   }
   
-  const AudioCard = ({ onAudioSubmit }: AudioCardProps) => {
+const AudioCard = ({ onAudioSubmit }: AudioCardProps) => {
     return(
         <Box
             width="460px"
