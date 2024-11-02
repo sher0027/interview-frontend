@@ -20,7 +20,7 @@ const Button = {
             _hover: {
                 bg: 'background',
                 color: 'white',
-            },
+            }
         },
     },
     defaultProps: {      

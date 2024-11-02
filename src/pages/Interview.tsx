@@ -1,10 +1,11 @@
 import Navbar from "../components/Navbar";
 import Background from "../components/Background";
-import { Box } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import Dialog from "../components/Dialog";
 import AudioCard from "../components/AudioCard";
 import { useState } from "react";
 import { sendChatMessage } from "../api/api";
+import InstructionCard from "../components/InstructionCard";
 
 interface Message {
     sender: 'robot' | 'user';
@@ -42,12 +43,19 @@ const Interview = () => {
                     p="24px 0"
                 >
                     <Dialog messages={messages} />
-                    <AudioCard 
-                        onAudioSubmit={(audioUrl: string) => {
-                            addMessage('user', <audio controls src={audioUrl}></audio>);
-                            getRobotResponse('Audio message');
-                        }}
-                    />
+
+
+                    <Flex flexDirection="column" alignItems="center" gap={14}>
+                        <InstructionCard />
+                    
+                        <AudioCard 
+                            onAudioSubmit={(audioUrl: string) => {
+                                addMessage('user', <audio controls src={audioUrl}></audio>);
+                                getRobotResponse('Audio message');
+                            }}
+                        />
+                    </Flex>
+                    
                 </Box>
             </Background>
         </>

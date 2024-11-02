@@ -6,14 +6,22 @@ import { getResume, updateResume, uploadResume } from "../api/api";
 import { formatField, parseField } from "../utils/format";
 
 const ResumeInfo = () => {
-    const [resumeInfo, setResumeInfo] = useState({
+    const [resumeInfo, setResumeInfo] = useState<{
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        education: { [key: string]: any }[];
+        workExperience: { [key: string]: any }[];
+        skills: string[];
+    } & { [key: string]: any }>({
         name: "",
         email: "",
         phone: "",
         address: "",
-        education: "",
-        workExperience: "",
-        skills: "",
+        education: [],
+        workExperience: [],
+        skills: [],
     });
 
     const [isEditing, setIsEditing] = useState(false);
@@ -27,10 +35,10 @@ const ResumeInfo = () => {
     ];
 
     const otherFields = [
-        { label: "Education", name: "education", isTextarea: true },
-        { label: "Work Experience", name: "workExperience", isTextarea: true },
-        { label: "Skills", name: "skills", isTextarea: true },
-    ];
+        { label: "Education", name: "education", isTextarea: true, isArray: true },
+        { label: "Work Experience", name: "workExperience", isTextarea: true, isArray: true },
+        { label: "Skills", name: "skills", isTextarea: true, isArray: false},
+    ]
 
     const fetchResume = async () => {
         try {
@@ -38,13 +46,9 @@ const ResumeInfo = () => {
             const response = await getResume();
             if (response.status === 200 && response.data) {
                 setResumeInfo({
-                    name: response.data.name || "",
-                    email: response.data.email || "",
-                    phone: response.data.phone || "",
-                    address: response.data.address || "",
-                    education: response.data.education ? formatField(response.data.education) : "",
-                    workExperience: response.data.workExperience ? formatField(response.data.workExperience) : "",
-                    skills: response.data.skills || "",
+                    ...response.data,
+                    education: response.data.education || [],
+                    workExperience: response.data.workExperience || [],
                 });
             }
         } catch (error) {
@@ -81,8 +85,8 @@ const ResumeInfo = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setResumeInfo((prevInfo) => ({
-        ...prevInfo,
-        [name]: value,
+            ...prevInfo,
+            [name]: value,
         }));
     };
 
@@ -93,15 +97,10 @@ const ResumeInfo = () => {
     const handleSubmit = async () => {
         try {
             setLoading(true);
-            const updatedResume = {
-                ...resumeInfo,
-                education: parseField(resumeInfo.education),
-                workExperience: parseField(resumeInfo.workExperience),
-            };
-            await updateResume(updateResume);
-            await fetchResume(); 
+            await updateResume(resumeInfo); 
+            await fetchResume();
             setIsEditing(false);
-            console.log("Resume Info Updated:", updatedResume);
+            console.log("Resume Info Updated:", resumeInfo);
         } catch (error) {
             console.error("Error updating resume:", error);
             alert("Error updating resume information.");
@@ -109,10 +108,11 @@ const ResumeInfo = () => {
             setLoading(false);
         }
     };
+    
 
     return (
         <Box 
-            m="auto" 
+            m={0} 
             p={6} 
             boxShadow="2px 0px 10px rgba(3, 3, 3, 0.1)"
             borderRadius="24px"
@@ -141,8 +141,18 @@ const ResumeInfo = () => {
                                 <FormLabel>{field.label}</FormLabel>
                                 <Textarea
                                     name={field.name}
-                                    value={resumeInfo[field.name as keyof typeof resumeInfo]}
-                                    onChange={handleChange}
+                                    value={field.isArray && Array.isArray(resumeInfo[field.name]) 
+                                        ? formatField(resumeInfo[field.name]) 
+                                        : resumeInfo[field.name as keyof typeof resumeInfo]}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setResumeInfo((prevInfo) => ({
+                                            ...prevInfo,
+                                            [field.name]: field.isArray 
+                                                ? parseField(value)  
+                                                : value 
+                                        }));
+                                    }}
                                     isReadOnly={!isEditing}
                                     bg={isEditing ? "white" : "gray.100"}
                                     placeholder={`Add ${field.label.toLowerCase()}`}

@@ -1,4 +1,4 @@
-function formatField(fieldArray: any[]) {
+function formatField(fieldArray: any[]): string {
     if (!Array.isArray(fieldArray)) return ""; 
     return fieldArray
         .map(item =>
@@ -15,15 +15,15 @@ function parseField(fieldString: string): any[] {
     if (typeof fieldString !== 'string' || !fieldString.trim()) return [];
 
     return fieldString
-        .split("\n")
+        .split("\n") 
         .map(line => {
             const entryObj: Record<string, any> = {};
-            line.split(", ").forEach(part => {
+            line.split(", ").forEach(part => {  
                 const [key, value] = part.split(": ");
                 if (key && value) {
                     entryObj[key.trim()] = value.includes(",") 
-                        ? value.split(",").map(v => v.trim()) 
-                        : value.trim();
+                        ? value.split(",").map(v => v.trim())  
+                        : value.trim(); 
                 }
             });
             return entryObj;

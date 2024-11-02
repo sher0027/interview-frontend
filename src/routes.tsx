@@ -14,9 +14,9 @@ const routes: RouteConfig[] = [
   { path: '/', element: <Login /> },
   { path: '/home', element: <Home /> },
   { path: '/interview', element: <Interview /> },
-  { path: '/resume', element: <Resume />},
+  // { path: '/resume', element: <Resume />},
   { path: '/evaluation', element: <Evaluation /> },
-  { path: '/history', element: <History /> },
+  // { path: '/history', element: <History /> },
 ];
 
 export default routes;

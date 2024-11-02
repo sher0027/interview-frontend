@@ -3,7 +3,7 @@ import AudioRecorder from "./AudioRecorder";
 
 interface AudioCardProps {
     onAudioSubmit: (audioUrl: string) => void;
-  }
+}
   
 const AudioCard = ({ onAudioSubmit }: AudioCardProps) => {
     return(

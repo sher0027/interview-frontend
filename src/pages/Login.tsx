@@ -19,13 +19,23 @@ import MessageAlert from '../components/MessageAlert';
 
 const Login = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [formData, setFormData] = useState({
+        username: "",
+        password: ""
+    });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
     const handleLogin = async () => {
-        if (!username || !password) {
+        if (!formData.username || !formData.password) {
             setError("Please enter both username and password.");
             return;
         }
@@ -33,7 +43,7 @@ const Login = () => {
         setLoading(true); 
         setError("");     
         try {
-            const response = await login(username, password);
+            const response = await login(formData.username, formData.password);
             if (response.status === 200) {
                 const token = response.data.token;
                 localStorage.setItem('authToken', token); 
@@ -51,6 +61,11 @@ const Login = () => {
             setLoading(false);
         }
     };
+
+    const inputs = [
+        { label: "Username", name: "username", type: "text", placeholder: "username@domain.com" },
+        { label: "Password", name: "password", type: "password", placeholder: "*****************" }
+    ];
 
     return(    
         <Flex
@@ -84,25 +99,19 @@ const Login = () => {
 
                 {error && <MessageAlert status={'error'} message={error} />}
 
-                <FormControl mb={5}>
-                    <FormLabel htmlFor="username">Username</FormLabel>
-                    <Input 
-                        id="username" 
-                        placeholder="username@domain.com"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
-                </FormControl>
-                <FormControl mb={5}>
-                    <FormLabel htmlFor="password">Password</FormLabel>
-                    <Input 
-                        id="password" 
-                        type="password"
-                        placeholder="*****************"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </FormControl>
+                {inputs.map((input) => (
+                    <FormControl key={input.name} mb={5}>
+                        <FormLabel htmlFor={input.name}>{input.label}</FormLabel>
+                        <Input 
+                            id={input.name}
+                            name={input.name}
+                            type={input.type}
+                            placeholder={input.placeholder}
+                            value={formData[input.name as keyof typeof formData]}
+                            onChange={handleInputChange}
+                        />
+                    </FormControl>
+                ))}
             
                 <Button 
                     mb={5} 
