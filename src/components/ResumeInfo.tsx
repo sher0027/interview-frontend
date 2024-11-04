@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Box, Button, Heading, Stack, Textarea, SimpleGrid, FormControl, FormLabel, Flex } from "@chakra-ui/react";
 import EditableField from './EditableField';  
 import UploadCard from "./UploadCard";
-import { getResume, updateResume, uploadResume } from "../api/api";
+import { uploadResume, fetchResume, updateResume } from "../api/resume";
 import { formatField, parseField } from "../utils/format";
 
 const ResumeInfo = () => {
@@ -40,10 +40,10 @@ const ResumeInfo = () => {
         { label: "Skills", name: "skills", isTextarea: true, isArray: false},
     ]
 
-    const fetchResume = async () => {
+    const loadResume = async () => {
         try {
             setLoading(true);
-            const response = await getResume();
+            const response = await fetchResume();
             if (response.status === 200 && response.data) {
                 setResumeInfo({
                     ...response.data,
@@ -59,7 +59,7 @@ const ResumeInfo = () => {
     };
 
     useEffect(() => {
-        fetchResume(); 
+        loadResume(); 
     }, []);
 
     const handleFileUpload = async (file: File) => {

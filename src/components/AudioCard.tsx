@@ -1,11 +1,7 @@
 import { Box, Text } from "@chakra-ui/react";
 import AudioRecorder from "./AudioRecorder";
-
-interface AudioCardProps {
-    onAudioSubmit: (audioUrl: string) => void;
-}
   
-const AudioCard = ({ onAudioSubmit }: AudioCardProps) => {
+const AudioCard = () => {
     return(
         <Box
             width="460px"
@@ -21,7 +17,7 @@ const AudioCard = ({ onAudioSubmit }: AudioCardProps) => {
                 alignItems="center"
                 marginY={5}
             >
-                <AudioRecorder onAudioSubmit={onAudioSubmit}></AudioRecorder>
+                <AudioRecorder />
             </Box>
         </Box>
     )

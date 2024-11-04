@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from '../api/api';
+import { login } from '../api/account';
 import LoadingCircle from '../components/LoadingCircle';
 import MessageAlert from '../components/MessageAlert';
 

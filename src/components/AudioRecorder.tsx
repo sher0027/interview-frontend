@@ -1,13 +1,10 @@
 import { useState, useRef } from "react";
 import { Box, Button, IconButton, Flex } from "@chakra-ui/react";
 import { FaMicrophone, FaRedo, FaPaperPlane } from "react-icons/fa";
-import { uploadAudio } from "../api/api";
+import { sendChatMessage, uploadAudio } from "../api/chat";
 
-interface AudioRecorderProps {
-    onAudioSubmit: (audioUrl: string) => void;
-}
-
-const AudioRecorder = ({ onAudioSubmit }: AudioRecorderProps) => {
+const AudioRecorder = () => {
+    const rid = "1"
     const [isRecording, setIsRecording] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -16,17 +13,17 @@ const AudioRecorder = ({ onAudioSubmit }: AudioRecorderProps) => {
     const startRecording = async () => {
         setIsRecording(true);
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
+        const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
         mediaRecorderRef.current = mediaRecorder;
 
         const audioChunks: Blob[] = [];
 
         mediaRecorder.addEventListener("dataavailable", (event) => {
             audioChunks.push(event.data);
-            });
+        });
 
-            mediaRecorder.addEventListener("stop", () => {
-            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+        mediaRecorder.addEventListener("stop", () => {
+            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
             const audioUrl = URL.createObjectURL(audioBlob);
             setAudioUrl(audioUrl);
         });
@@ -45,13 +42,14 @@ const AudioRecorder = ({ onAudioSubmit }: AudioRecorderProps) => {
 
     const sendAudio = async () => {
         if (audioUrl) {
-            const response = await fetch(audioUrl);
-            const blob = await response.blob(); 
-            const audioFile = new File([blob], "audio.wav", { type: "audio/wav" });
-    
             try {
-                const { data } = await uploadAudio(audioFile);
-                onAudioSubmit(data.transcript);
+                const response = await fetch(audioUrl);
+                const blob = await response.blob();
+                const audioFile = new File([blob], "audio.webm", { type: "audio/webm" });
+                await uploadAudio(audioFile, rid);
+                await sendChatMessage(rid);
+                URL.revokeObjectURL(audioUrl);
+                setAudioUrl(null);  
             } catch (error) {
                 console.error("Error uploading audio:", error);
             }
