@@ -2,11 +2,17 @@ import { useState, useRef } from "react";
 import { Box, Button, IconButton, Flex } from "@chakra-ui/react";
 import { FaMicrophone, FaRedo, FaPaperPlane } from "react-icons/fa";
 import { sendChatMessage, uploadAudio } from "../api/chat";
+import LoadingCircle from "./LoadingCircle";
 
-const AudioRecorder = () => {
-    const rid = "1"
+interface AudioRecorderProps {
+    rid: string;
+    onUploadComplete: () => void; 
+}
+
+const AudioRecorder = ({ rid, onUploadComplete }: AudioRecorderProps) => {
     const [isRecording, setIsRecording] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false); 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -42,22 +48,31 @@ const AudioRecorder = () => {
 
     const sendAudio = async () => {
         if (audioUrl) {
+            setLoading(true); 
             try {
                 const response = await fetch(audioUrl);
                 const blob = await response.blob();
                 const audioFile = new File([blob], "audio.webm", { type: "audio/webm" });
+                
                 await uploadAudio(audioFile, rid);
+                onUploadComplete(); 
+
                 await sendChatMessage(rid);
+                onUploadComplete(); 
+
                 URL.revokeObjectURL(audioUrl);
                 setAudioUrl(null);  
             } catch (error) {
                 console.error("Error uploading audio:", error);
+            } finally {
+                setLoading(false); 
             }
         }
     };
 
     return (
         <>
+            {loading && <LoadingCircle />}
             <Flex justify="center">
                 {isRecording ? (
                 <Button colorScheme="red" onClick={stopRecording} leftIcon={<FaMicrophone />}>

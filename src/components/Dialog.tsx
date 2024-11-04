@@ -1,6 +1,6 @@
 import { Box, Text, Icon } from "@chakra-ui/react";
 import { FaRobot, FaUser } from "react-icons/fa";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { fetchRecord } from "../api/record";
 
 interface Message {
@@ -12,7 +12,11 @@ interface DialogProps {
     rid: string;
 }
 
-const Dialog = ({ rid }: DialogProps) => {
+export interface DialogHandle {
+    refreshMessages: () => void;
+}
+
+const Dialog = forwardRef<DialogHandle, DialogProps>(({ rid }, ref) => {
     const [messages, setMessages] = useState<Message[]>([
         { sender: 'robot', content: 'Hello! How can I help you today?' },
     ]);
@@ -30,16 +34,13 @@ const Dialog = ({ rid }: DialogProps) => {
 
     const addMessage = (sender: 'robot' | 'user', content: string | JSX.Element) => {
         setMessages((prevMessages) => [...prevMessages, { sender, content }]);
-
-        if (sender === 'robot' && typeof content === 'string') {
-            speakText(content);
-        }
     };
 
     const loadMessagesFromRecords = async () => {
         try {
             const response = await fetchRecord(rid); 
             const records = response.data.records;
+            let lastRobotMessage: string | null = null;
 
             records.forEach((record: { transcript: string | JSX.Element; reply: string | JSX.Element; }) => {
                 ['transcript', 'reply'].forEach((key) => {
@@ -48,13 +49,24 @@ const Dialog = ({ rid }: DialogProps) => {
         
                     if (content) {
                         addMessage(sender, content);
+                        if (sender === 'robot' && typeof content === 'string') {
+                            lastRobotMessage = content; 
+                        }
                     }
                 });
             });
+            
+            if (lastRobotMessage) {
+                speakText(lastRobotMessage);
+            }
         } catch (error) {
             console.error('Error loading records:', error);
         }
     };
+
+    useImperativeHandle(ref, () => ({
+        refreshMessages: loadMessagesFromRecords,
+    }));
 
     useEffect(() => {
         if (!hasLoadedRecords.current) {
@@ -113,6 +125,6 @@ const Dialog = ({ rid }: DialogProps) => {
             </Box> 
         </Box>
     );
-};
+});
 
 export default Dialog;
