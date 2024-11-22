@@ -8,24 +8,24 @@ const features = [
       description: "Practice with our AI-powered interview simulator to enhance your skills.",
       linkTo: "/interview"
     },
-    {
-      imageSrc: "/src/assets/bg.jpg", 
-      title: "Resume Upload",
-      description: "Upload your resume for detailed feedback and optimization tips.",
-      linkTo: "/resume"
-    },
+    // {
+    //   imageSrc: "/src/assets/bg.jpg", 
+    //   title: "Resume Upload",
+    //   description: "Upload your resume for detailed feedback and optimization tips.",
+    //   linkTo: "/resume"
+    // },
     {
       imageSrc: "/src/assets/bg.jpg", 
       title: "Evaluation",
       description: "Receive evaluations based on your interview records and job descriptions (JD).",
       linkTo: "/evaluation"
     },
-    {
-      imageSrc: "/src/assets/bg.jpg", 
-      title: "Interview Analysis",
-      description: "Review key insights and feedback from your past interviews.",
-      linkTo: "/history"
-    },
+    // {
+    //   imageSrc: "/src/assets/bg.jpg", 
+    //   title: "Interview Analysis",
+    //   description: "Review key insights and feedback from your past interviews.",
+    //   linkTo: "/history"
+    // },
 ];
   
   

@@ -7,9 +7,11 @@ export function uploadResume(file: File) {
     return request.post('/upload_pdf/', formData);
 }
 
-export function fetchResume(){
+
+export function fetchResume(version?: number){
+    const url = version ? `/resume/${version}/` : `/resume/`;
     return request({
-        url: '/resume/', 
+        url: url, 
         method: 'get',
         headers: {
             'Content-Type': 'application/json',
@@ -17,9 +19,9 @@ export function fetchResume(){
     });
 }
 
-export function updateResume(resumeInfo: any){
+export function updateResume(version: number, resumeInfo: any){
     return request({
-        url: '/resume/', 
+        url: `/resume/${version}/`, 
         method: 'put',
         headers: {
             'Content-Type': 'application/json',

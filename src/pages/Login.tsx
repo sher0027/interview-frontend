@@ -16,6 +16,8 @@ import { useNavigate } from "react-router-dom";
 import { login } from '../api/account';
 import LoadingCircle from '../components/LoadingCircle';
 import MessageAlert from '../components/MessageAlert';
+import InfoModal from '../components/InfoModal';
+import RegisterInfo from '../components/RegisterInfo';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -25,6 +27,7 @@ const Login = () => {
     });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -45,8 +48,9 @@ const Login = () => {
         try {
             const response = await login(formData.username, formData.password);
             if (response.status === 200) {
-                const token = response.data.token;
-                localStorage.setItem('authToken', token); 
+                const { access, refresh } = response.data;
+                localStorage.setItem('accessToken', access);
+                localStorage.setItem('refreshToken', refresh);
                 navigate("/home"); 
             } else {
                 setError("Login failed. Please check your credentials.");
@@ -66,6 +70,10 @@ const Login = () => {
         { label: "Username", name: "username", type: "text", placeholder: "username@domain.com" },
         { label: "Password", name: "password", type: "password", placeholder: "*****************" }
     ];
+
+    const handleRegister = () => {
+        setIsModalOpen(true);
+    };
 
     return(    
         <Flex
@@ -128,7 +136,7 @@ const Login = () => {
                         <Text fontSize="sm" color="#4f4f4f">or</Text>
                     </AbsoluteCenter>
                 </Box>
-                <Button variant="outline" mt={5} width="100%">Get started</Button>
+                <Button variant="outline" mt={5} width="100%" onClick={handleRegister} >Get started</Button>
             </Box>
             <Image 
                 src="/src/assets/bg.jpg" 
@@ -138,6 +146,9 @@ const Login = () => {
                 right="100px"  
                 objectFit="contain"
             />
+            <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <RegisterInfo onClose={() => setIsModalOpen(false)}/>
+            </InfoModal>
         </Flex>
     );
 };

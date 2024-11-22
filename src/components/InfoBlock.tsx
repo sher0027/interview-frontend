@@ -11,7 +11,7 @@ const InfoBlock = ({ label, num, content }: InfoBlockProps) => {
         <Flex>
             <Heading mr={4} fontSize="24px">{label}{num}:</Heading>
             {typeof content === "string" ? (
-                <Text>{content}</Text>
+                <Text fontSize="20px">{content}</Text>
             ) : (
                 content
             )}

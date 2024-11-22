@@ -10,3 +10,14 @@ export function fetchRecord(rid: string, seq?: number){
         },
     });
 }
+
+export function updateRecordStatus(rid: string, status: string){
+    return request({
+        url: `/record/${rid}/`, 
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        data: status
+    });
+}

@@ -7,7 +7,7 @@ const Evaluation = () => {
         <>
             <Navbar />
             <Background>
-                <EvaluationList></EvaluationList>
+                <EvaluationList eid="1"/>
             </Background>
         </>
     )

@@ -1,9 +1,9 @@
 import Evaluation from './pages/Evalutation';
-import History from './pages/History';
+// import History from './pages/History';
 import Home from './pages/Home';
 import Interview from './pages/Interview';
 import Login from './pages/Login';
-import Resume from './pages/Resume';
+// import Resume from './pages/Resume';
 
 interface RouteConfig {
   path: string;

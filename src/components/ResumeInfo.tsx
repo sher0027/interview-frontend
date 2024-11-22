@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Box, Button, Heading, Stack, Textarea, SimpleGrid, FormControl, FormLabel, Flex } from "@chakra-ui/react";
-import EditableField from './EditableField';  
+import { Box, Button, Heading, Stack, Textarea, SimpleGrid, FormControl, FormLabel, Flex, Select } from "@chakra-ui/react";
+import EditableField from './EditableField';
 import UploadCard from "./UploadCard";
 import { uploadResume, fetchResume, updateResume } from "../api/resume";
 import { formatField, parseField } from "../utils/format";
@@ -26,6 +26,8 @@ const ResumeInfo = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [resumeVersions, setResumeVersions] = useState([]); 
+    const [selectedVersion, setSelectedVersion] = useState<number>(1);
 
     const fields = [
         { label: "Name", name: "name" },
@@ -37,19 +39,37 @@ const ResumeInfo = () => {
     const otherFields = [
         { label: "Education", name: "education", isTextarea: true, isArray: true },
         { label: "Work Experience", name: "workExperience", isTextarea: true, isArray: true },
-        { label: "Skills", name: "skills", isTextarea: true, isArray: false},
-    ]
+        { label: "Skills", name: "skills", isTextarea: true, isArray: false },
+    ];
 
-    const loadResume = async () => {
+    const loadResumes = async () => {
         try {
             setLoading(true);
             const response = await fetchResume();
             if (response.status === 200 && response.data) {
-                setResumeInfo({
-                    ...response.data,
-                    education: response.data.education || [],
-                    workExperience: response.data.workExperience || [],
-                });
+                const resumes = response.data.resumes || [];
+                setResumeVersions(resumes);
+
+                const latestResume = resumes.reduce((latest: { version: number; }, current: { version: number; }) =>
+                    current.version > latest.version ? current : latest
+                );
+                console.log(latestResume);
+                setSelectedVersion(latestResume.version);
+                setResumeInfo(latestResume); 
+            }
+        } catch (error) {
+            console.error("Error fetching resumes:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadResume = async (version: number) => {
+        try {
+            setLoading(true);
+            const response = await fetchResume(version); 
+            if (response.status === 200 && response.data) {
+                setResumeInfo(response.data);
             }
         } catch (error) {
             console.error("Error fetching resume:", error);
@@ -59,18 +79,21 @@ const ResumeInfo = () => {
     };
 
     useEffect(() => {
-        loadResume(); 
+        loadResumes();
     }, []);
+
+    const handleVersionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const version = Number(e.target.value);
+        setSelectedVersion(version);
+        loadResume(version); 
+    };
 
     const handleFileUpload = async (file: File) => {
         setLoading(true);
-        const formData = new FormData();
-        formData.append("file", file);
-
         try {
-            const response = await uploadResume(file);
-            if (response.status === 200 && response.data.resume_info) {
-                await fetchResume(); 
+            const response = await uploadResume(file); 
+            if (response.status === 200) {
+                await loadResumes(); 
             } else {
                 alert("Failed to parse PDF content.");
             }
@@ -97,10 +120,9 @@ const ResumeInfo = () => {
     const handleSubmit = async () => {
         try {
             setLoading(true);
-            await updateResume(resumeInfo); 
-            await fetchResume();
+            await updateResume(selectedVersion,resumeInfo);
+            await loadResume(selectedVersion);
             setIsEditing(false);
-            console.log("Resume Info Updated:", resumeInfo);
         } catch (error) {
             console.error("Error updating resume:", error);
             alert("Error updating resume information.");
@@ -108,15 +130,9 @@ const ResumeInfo = () => {
             setLoading(false);
         }
     };
-    
 
     return (
-        <Box 
-            m={0} 
-            p={6} 
-            boxShadow="2px 0px 10px rgba(3, 3, 3, 0.1)"
-            borderRadius="24px"
-        >
+        <Box m={0} p={6} boxShadow="2px 0px 10px rgba(3, 3, 3, 0.1)" borderRadius="24px">
             <Heading mb={5}>Resume Information</Heading>
 
             <Stack spacing={6} mb={4}>
@@ -124,66 +140,75 @@ const ResumeInfo = () => {
                     <Flex flexDirection="column" gap={4}>
                         {fields.map((field) => (
                             <EditableField
-                            key={field.name}
-                            label={field.label}
-                            name={field.name}
-                            value={resumeInfo[field.name as keyof typeof resumeInfo]}
-                            onChange={handleChange}
-                            isEditing={isEditing}
-                            />
-                        ))}
-                    </Flex>
-                    <Flex flexDirection="column" justifyContent="space-around">
-                        {otherFields.map((field) => (
-                        <Box key={field.name}>
-                        {field.isTextarea ? (
-                            <FormControl>
-                                <FormLabel>{field.label}</FormLabel>
-                                <Textarea
-                                    name={field.name}
-                                    value={field.isArray && Array.isArray(resumeInfo[field.name]) 
-                                        ? formatField(resumeInfo[field.name]) 
-                                        : resumeInfo[field.name as keyof typeof resumeInfo]}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        setResumeInfo((prevInfo) => ({
-                                            ...prevInfo,
-                                            [field.name]: field.isArray 
-                                                ? parseField(value)  
-                                                : value 
-                                        }));
-                                    }}
-                                    isReadOnly={!isEditing}
-                                    bg={isEditing ? "white" : "gray.100"}
-                                    placeholder={`Add ${field.label.toLowerCase()}`}
-                                />
-                            </FormControl>
-                        ) : (
-                            <EditableField
+                                key={field.name}
                                 label={field.label}
                                 name={field.name}
                                 value={resumeInfo[field.name as keyof typeof resumeInfo]}
                                 onChange={handleChange}
                                 isEditing={isEditing}
                             />
-                        )}
-                        </Box>
-                    ))}
+                        ))}
+                    </Flex>
+
+                    <Flex flexDirection="column" justifyContent="space-around">
+                        {otherFields.map((field) => (
+                            <Box key={field.name}>
+                                {field.isTextarea ? (
+                                    <FormControl>
+                                        <FormLabel>{field.label}</FormLabel>
+                                        <Textarea
+                                            name={field.name}
+                                            value={
+                                                field.isArray && Array.isArray(resumeInfo[field.name])
+                                                    ? formatField(resumeInfo[field.name])
+                                                    : resumeInfo[field.name as keyof typeof resumeInfo]
+                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setResumeInfo((prevInfo) => ({
+                                                    ...prevInfo,
+                                                    [field.name]: field.isArray
+                                                        ? parseField(value)
+                                                        : value,
+                                                }));
+                                            }}
+                                            isReadOnly={!isEditing}
+                                            bg={isEditing ? "white" : "gray.100"}
+                                            placeholder={`Add ${field.label.toLowerCase()}`}
+                                        />
+                                    </FormControl>
+                                ) : (
+                                    <EditableField
+                                        label={field.label}
+                                        name={field.name}
+                                        value={resumeInfo[field.name as keyof typeof resumeInfo]}
+                                        onChange={handleChange}
+                                        isEditing={isEditing}
+                                    />
+                                )}
+                            </Box>
+                        ))}
                     </Flex>
 
                     <Flex flexDirection="column" justifyContent="center" gap={4}>
+                        <FormControl>
+                            <Select value={selectedVersion || ""} onChange={handleVersionChange}>
+                                {resumeVersions.map((resume: any) => (
+                                    <option key={resume.version} value={resume.version}>
+                                        Version {resume.version}
+                                    </option>
+                                ))}
+                            </Select>
+                        </FormControl>
                         <Button width="100%" onClick={isEditing ? handleSubmit : handleEditToggle}>
                             {isEditing ? "Save" : "Edit"}
                         </Button>
                         <UploadCard onUpload={handleFileUpload} loading={loading} />
                     </Flex>
-                
                 </SimpleGrid>
-                
             </Stack>
         </Box>
     );
 };
+
 export default ResumeInfo;
-
-
