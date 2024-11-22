@@ -3,7 +3,7 @@ import request from "../utils/reuqest";
 export function sendChatMessage(rid: string) {
     const companyInfo = JSON.parse(localStorage.getItem("companyInfo") || '{}');
     return request({
-        url: '/send_chat_message/', 
+        url: `/send_chat_message/${rid}/`, 
         method: 'post',
         headers: {
             'Content-Type': 'application/json',

@@ -56,7 +56,7 @@ const BarChart = ({ title, data }: BarChartProps) => {
                         type: "bar",
                         data: data.values,
                         itemStyle: {
-                            color: "#396ec8", // Customize bar color
+                            color: "#396ec8", 
                         },
                     },
                 ],

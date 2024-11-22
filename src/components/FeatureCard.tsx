@@ -23,7 +23,7 @@ const FeatureCard = ({ imageSrc, title, description, linkTo }: FeatureCardProps)
             <Image 
                 src={imageSrc} 
                 alt={title} 
-                borderRadius="full" 
+                // borderRadius="full" 
                 boxSize="150px" 
                 mx="auto" 
                 mb={4}

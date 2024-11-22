@@ -89,47 +89,70 @@ const EvaluationList = ({ eid }: { eid: string }) => {
                         const answer = evaluation.answer || "No reply available"; 
                 
                         const evaluationDetails = evaluation.acoustic || evaluation.content
-                            ? [
-                                  {
-                                      name: "Acoustic",
-                                      list: [
-                                          {
-                                              label: "Intensity (dB)",
-                                              content: evaluation.acoustic?.evaluation_result?.intensity || "N/A",
-                                          },
-                                          {
-                                              label: "Pitch (Hz)",
-                                              content: evaluation.acoustic?.evaluation_result?.pitch || "N/A",
-                                          },
-                                          {
-                                              label: "Short Pauses/Min",
-                                              content: evaluation.acoustic?.evaluation_result?.pauses?.short_pauses_per_minute || "N/A",
-                                          },
-                                          {
-                                              label: "Medium Pauses/Min",
-                                              content: evaluation.acoustic?.evaluation_result?.pauses?.medium_pauses_per_minute || "N/A",
-                                          },
-                                          {
-                                              label: "Long Pauses/Min",
-                                              content: evaluation.acoustic?.evaluation_result?.pauses?.long_pauses_per_minute || "N/A",
-                                          },
-                                      ],
-                                  },
-                                  {
-                                      name: "Content",
-                                      list: [
-                                          {
-                                              label: "Score",
-                                              content: evaluation.content?.score || "N/A",
-                                          },
-                                          {
-                                              label: "Feedback",
-                                              content: evaluation.content?.feedback || "No feedback available",
-                                          },
-                                      ],
-                                  },
-                              ]
-                            : [];
+                        ? [
+                            {
+                                name: "Acoustic",
+                                list: [
+                                    {
+                                        label: "Intensity (dB)",
+                                        content: evaluation.acoustic?.evaluation_result?.intensity || "N/A",
+                                        unit: "dB",
+                                        range: "30-100",
+                                        desiredRange: "60-75",
+                                    },
+                                    {
+                                        label: "Pitch (Hz)",
+                                        content: evaluation.acoustic?.evaluation_result?.pitch || "N/A",
+                                        unit: "Hz",
+                                        range: "50-300",
+                                        desiredRange: "85-255",
+                                    },
+                                    {
+                                        label: "Speech Rate",
+                                        content: evaluation.acoustic?.evaluation_result?.speech_rate || "N/A",
+                                        unit: "wpm",
+                                        range: "50-250",
+                                        desiredRange: "120-180",
+                                    },
+                                    {
+                                        label: "Pauses",
+                                        content:
+                                            evaluation.acoustic?.evaluation_result?.pauses
+                                            ? (
+                                                <>
+                                                    Short Pauses:{" "}
+                                                    {evaluation.acoustic.evaluation_result.pauses.short_pauses_per_minute || "N/A"} pauses / min
+                                                    <br />
+                                                    Medium Pauses:{" "}
+                                                    {evaluation.acoustic.evaluation_result.pauses.medium_pauses_per_minute || "N/A"} pauses / min
+                                                    <br />
+                                                    Long Pauses:{" "}
+                                                    {evaluation.acoustic.evaluation_result.pauses.long_pauses_per_minute || "N/A"} pauses / min
+                                                </>
+                                                )
+                                            : "No pause data available"
+                                    },
+                                ],
+                            },
+                            {
+                                name: "Content",
+                                list: [
+                                {
+                                    label: "Score",
+                                    content: evaluation.content?.score || "N/A",
+                                    unit: "",
+                                    range: "0-10",
+                                    desiredRange: "6-10",
+                                },
+                                {
+                                    label: "Feedback",
+                                    content: evaluation.content?.feedback || "No feedback available",
+                                },
+                                ],
+                            },
+                            ]
+                        : [];
+
 
                         return {
                             seq,

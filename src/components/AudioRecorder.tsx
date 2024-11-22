@@ -54,11 +54,9 @@ const AudioRecorder = ({ rid, onUploadComplete }: AudioRecorderProps) => {
                 const blob = await response.blob();
                 const audioFile = new File([blob], "audio.webm", { type: "audio/webm" });
                 
-                await Promise.all([
-                    uploadAudio(audioFile, rid), 
-                    sendChatMessage(rid)
-                ]);
-            
+                await uploadAudio(audioFile, rid);
+                await sendChatMessage(rid);
+
                 onUploadComplete();
 
                 URL.revokeObjectURL(audioUrl);

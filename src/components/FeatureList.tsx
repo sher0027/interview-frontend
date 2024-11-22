@@ -3,7 +3,7 @@ import FeatureCard from "./FeatureCard";
 
 const features = [
     {
-      imageSrc: "/src/assets/bg.jpg", 
+      imageSrc: "/src/assets/interview.png", 
       title: "AI Interviews",
       description: "Practice with our AI-powered interview simulator to enhance your skills.",
       linkTo: "/interview"
@@ -15,7 +15,7 @@ const features = [
     //   linkTo: "/resume"
     // },
     {
-      imageSrc: "/src/assets/bg.jpg", 
+      imageSrc: "/src/assets/evaluation.png", 
       title: "Evaluation",
       description: "Receive evaluations based on your interview records and job descriptions (JD).",
       linkTo: "/evaluation"

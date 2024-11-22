@@ -84,32 +84,30 @@ const Dialog = forwardRef<DialogHandle, DialogProps>(({ rid }, ref) => {
         }
     }, [rid]);
 
+    const navigate = useNavigate();
     const handleEndInterview = async () => {
-        const navigate = useNavigate();
+        console.log("handleEndInterview started");
         try {
             setLoading(true);
             const response = await updateRecordStatus(rid, "completed");
+    
             if (response.status === 200) {
-                alert("Interview has been successfully ended.");
-                // Trigger evaluation after ending the interview
                 const evaluationResponse = await evaluate(rid);
+    
                 if (evaluationResponse.status === 200) {
-                    alert("Evaluation has been successfully triggered.");
-                    navigate(`/evaluation`);
-                } else {
-                    alert("Failed to trigger evaluation.");
+                    navigate(`/evaluation`); 
                 }
             } else {
-                alert("Failed to end the interview.");
+                throw new Error("Failed to end the interview. Unexpected response status.");
             }
         } catch (error) {
             console.error("Error ending interview:", error);
-            alert("An error occurred while ending the interview.");
         } finally {
             setLoading(false);
             onClose();
         }
     };
+    
 
     return (
         <Box

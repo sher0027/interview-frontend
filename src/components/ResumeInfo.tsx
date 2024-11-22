@@ -120,7 +120,8 @@ const ResumeInfo = () => {
     const handleSubmit = async () => {
         try {
             setLoading(true);
-            await updateResume(selectedVersion,resumeInfo);
+            console.log(selectedVersion)
+            await updateResume(selectedVersion, resumeInfo);
             await loadResume(selectedVersion);
             setIsEditing(false);
         } catch (error) {
