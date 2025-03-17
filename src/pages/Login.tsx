@@ -139,7 +139,7 @@ const Login = () => {
                 <Button variant="outline" mt={5} width="100%" onClick={handleRegister} >Get started</Button>
             </Box>
             <Image 
-                src="/src/assets/bg.jpg" 
+                src="/assets/bg.jpg" 
                 boxSize="370px"
                 position="absolute"
                 top="420px"     

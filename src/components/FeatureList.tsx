@@ -3,25 +3,25 @@ import FeatureCard from "./FeatureCard";
 
 const features = [
     {
-      imageSrc: "/src/assets/interview.png", 
+      imageSrc: "/assets/interview.png", 
       title: "AI Interviews",
       description: "Practice with our AI-powered interview simulator to enhance your skills.",
       linkTo: "/interview"
     },
     // {
-    //   imageSrc: "/src/assets/bg.jpg", 
+    //   imageSrc: "/assets/bg.jpg", 
     //   title: "Resume Upload",
     //   description: "Upload your resume for detailed feedback and optimization tips.",
     //   linkTo: "/resume"
     // },
     {
-      imageSrc: "/src/assets/evaluation.png", 
+      imageSrc: "/assets/evaluation.png", 
       title: "Evaluation",
       description: "Receive evaluations based on your interview records and job descriptions (JD).",
       linkTo: "/evaluation"
     },
     // {
-    //   imageSrc: "/src/assets/bg.jpg", 
+    //   imageSrc: "/assets/bg.jpg", 
     //   title: "Interview Analysis",
     //   description: "Review key insights and feedback from your past interviews.",
     //   linkTo: "/history"
